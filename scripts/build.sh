@@ -21,11 +21,11 @@ build () {
 			exit 1;
 		else
 			rm -rf $TMP build/*
-			"$scriptspath/copier.sh"; exit 0;
+			exit 0;
 		fi
 	else
 		rm -rf $TMP build/*
-		"$scriptspath/copier.sh"; exit 0;
+		exit 0;
 	fi
 }
 if [ ! -d "$buildfolder" ] && [ !"$s" ]; then #firts run
