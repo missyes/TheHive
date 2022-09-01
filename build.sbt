@@ -216,7 +216,7 @@ lazy val thehiveFrontend = (project in file("frontend"))
       label = "bower",
       inputFiles = baseDirectory.value / "bower.json",
       outputFiles = baseDirectory.value / "bower_components" ** AllPassFilter,
-      command = baseDirectory.value -> "bower install",
+      command = baseDirectory.value -> "bower install --allow-root",
       streams = streams.value
     ),
     gruntDev := {

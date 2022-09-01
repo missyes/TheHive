@@ -40,13 +40,18 @@ install (){
 	systemctl stop thehive
 	systemctl stop cassandra
 	echo -e "\033[0;32mUpdatig\033[m"
-	cp -R ../target/universal/stage/bin /opt/thehive/bin
-	cp -R ../target/universal/stage/lib /opt/thehive/lib
+	cp -R ../target/universal/stage/bin /opt/thehive
+	cp -R ../target/universal/stage/lib /opt/thehive
 	cp ../package/thehive.service /lib/systemd/system/
 	systemctl daemon-reload
 	systemctl start cassandra
 	systemctl start thehive
 	echo -e "\033[0;32mAll services up\033[m"
+	echo -e "\033[0;33mWaiting frontend to start on 9000...\033[m"
+	while ! nc -z localhost 9000;do
+		sleep 0.1
+	done
+	echo -e "\033[0;32mFrontend is up\033[m"
 }
 case "$1" in
 	backup)
