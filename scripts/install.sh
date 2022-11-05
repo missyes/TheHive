@@ -28,14 +28,12 @@ restore () {
 	systemctl start thehive
 }
 install (){
-	rm -r ../target
 	if [ ! -d /etc/thehive ]; then
 		if [ ! -d ../target ];then
 			echo -e "\033[0;32mBuilding\033[m"
 			/bin/bash ./build.sh
 			/bin/bash ./cassandra.sh
 			systemctl restart elasticsearch
-			mkdir -p /etc/default/thehive
 			mkdir -p /etc/thehive
 			mkdir -p /opt/thp/thehive/index
 			chown thehive:thehive -R /opt/thp/thehive/index
@@ -45,7 +43,7 @@ install (){
 			echo -e "# Environment File for TheHive\n\n# JAVA_OPTS for TheHive service can be set here\n#JAVA_OPTS=""" > /etc/default/thehive
 			#etc
 			cp ../target/universal/stage/conf/application.conf /etc/thehive
-			cp ../target/universal/stage/conf/logback-migration.xml /build/etc/thehive
+			cp ../target/universal/stage/conf/logback-migration.xml /etc/thehive
 			cp ../target/universal/stage/conf/logback.xml /etc/thehive
 			ln -s /opt/thehive4/conf /etc/thehive4
 			#opt
@@ -53,9 +51,10 @@ install (){
 			cp -R ../target/universal/stage/lib /opt/thehive
 			cp ../package/thehive.service /lib/systemd/system/
 			#usr
-			ln -s /opt/thehive4/bin/cloner usr/bin/cloner
+			ln -s /opt/thehive4/bin/cloner /usr/bin/cloner
 			ln -s /opt/thehive4/bin/migrate /usr/bin/migrate
-			ln -s /opt/thehive4/bin/thehive /build/usr/bin/thehive
+			ln -s /opt/thehive4/bin/thehive /usr/bin/thehive
+			mkdir -p /usr/share/doc/thehive
 			cat ../LICENSE > /usr/share/doc/thehive/copyright
 			echo -e "\033[0;32mPostinstaltaion\033[m"
 			bash ../package/debian/postinst configure
