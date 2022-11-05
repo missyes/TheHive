@@ -28,25 +28,58 @@ restore () {
 	systemctl start thehive
 }
 install (){
-	echo -e "\033[0;32mBuilding...\033[m"
-	/bin/bash ./build.sh r
-	backup
-	echo -e "\033[0;32mRestart elastic (drops after build)\033[m"
-	systemctl restart elasticsearch
-	if [ ! -d /opt/thehive ];then
-		echo -e "\033[0;32mPostinstaltaion\033[m"
-		bash ../package/debian/postinst configure
+	rm -r ../target
+	if [ ! -d /etc/thehive ]; then
+		if [ ! -d ../target ];then
+			echo -e "\033[0;32mBuilding\033[m"
+			/bin/bash ./build.sh
+			/bin/bash ./cassandra.sh
+			systemctl restart elasticsearch
+			mkdir -p /etc/default/thehive
+			mkdir -p /etc/thehive
+			mkdir -p /opt/thp/thehive/index
+			chown thehive:thehive -R /opt/thp/thehive/index
+			mkdir -p /opt/thp/thehive/files
+			chown -R thehive:thehive /opt/thp/thehive/files
+			echo -e "\033[0;32mInstallation\033[m"
+			echo -e "# Environment File for TheHive\n\n# JAVA_OPTS for TheHive service can be set here\n#JAVA_OPTS=""" > /etc/default/thehive
+			#etc
+			cp ../target/universal/stage/conf/application.conf /etc/thehive
+			cp ../target/universal/stage/conf/logback-migration.xml /build/etc/thehive
+			cp ../target/universal/stage/conf/logback.xml /etc/thehive
+			ln -s /opt/thehive4/conf /etc/thehive4
+			#opt
+			cp -R ../target/universal/stage/bin /opt/thehive
+			cp -R ../target/universal/stage/lib /opt/thehive
+			cp ../package/thehive.service /lib/systemd/system/
+			#usr
+			ln -s /opt/thehive4/bin/cloner usr/bin/cloner
+			ln -s /opt/thehive4/bin/migrate /usr/bin/migrate
+			ln -s /opt/thehive4/bin/thehive /build/usr/bin/thehive
+			cat ../LICENSE > /usr/share/doc/thehive/copyright
+			echo -e "\033[0;32mPostinstaltaion\033[m"
+			bash ../package/debian/postinst configure
+
+			systemctl daemon-reload
+			systemctl start thehive
+		fi
+	else
+		echo -e "\033[0;32mRebuilding...\033[m"
+		/bin/bash ./build.sh r
+		backup
+		echo -e "\033[0;32mRestart elastic (drops after build)\033[m"
+		systemctl restart elasticsearch
+		systemctl stop thehive
+		systemctl stop cassandra
+		echo -e "\033[0;32mUpdatig\033[m"
+		cp -R ../target/universal/stage/bin /opt/thehive
+		cp -R ../target/universal/stage/lib /opt/thehive
+		cp ../package/thehive.service /lib/systemd/system/
+		systemctl daemon-reload
+		systemctl start cassandra
+		systemctl start thehive
 	fi
-	systemctl stop thehive
-	systemctl stop cassandra
-	echo -e "\033[0;32mUpdatig\033[m"
-	cp -R ../target/universal/stage/bin /opt/thehive
-	cp -R ../target/universal/stage/lib /opt/thehive
-	cp ../package/thehive.service /lib/systemd/system/
-	systemctl daemon-reload
-	systemctl start cassandra
-	systemctl start thehive
-	echo -e "\033[0;32mAll services up\033[m"
+	echo -e "\033[0;32mAll services up\033[m"echo -e "\033[0;32mAll services up\033[m"
 	echo -e "\033[0;33mWaiting frontend to start on 9000...\033[m"
 	while ! nc -z localhost 9000;do
 		sleep 0.1

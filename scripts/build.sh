@@ -7,7 +7,15 @@ buildfolder="../target"
 scriptspath="$PTH/scripts"
 build () {
 	cd ../frontend
-	rm -r ./dist ./.tmp ./target
+	if [ -d ./dist ]; then
+		rm -r ./dist
+	fi
+	if [ -d ./.tmp ]; then
+		rm -r ./.tmp
+	fi
+	if [ -d ./target ]; then
+		rm -r ./target
+	fi
 	grunt build
 	TMP=$(mktemp)
 	cd ..
