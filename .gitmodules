@@ -1,4 +1,4 @@
 [submodule "ScalliGraph"]
 	path = ScalliGraph
-	url = ../scalligraph.git
+	url = https://github.com/TheHive-Project/ScalliGraph.git
 	branch = develop
